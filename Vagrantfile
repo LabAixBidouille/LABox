@@ -43,6 +43,7 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.box = "ffuenf/ubuntu-14.10-server-amd64"
+    config.vm.box_url = "https://s3.eu-central-1.amazonaws.com/ffuenf-vagrantboxes/ubuntu/ubuntu-14.10-server-amd64_virtualbox.box"
     config.vm.hostname = "utopic-LABox"
     config.vm.provision "shell", privileged: false, inline: $script
 
