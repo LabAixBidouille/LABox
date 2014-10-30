@@ -2,6 +2,7 @@
 
 $script = <<SCRIPT
 sudo apt-get update -y
+sudo apt-get dist-upgrade -y
 sudo apt-get upgrade -y
 
 # switch to French keyboard layout
@@ -22,6 +23,12 @@ gconftool -s /apps/gnome-terminal/profiles/Default/use_system_font -t bool false
 # install Chromium  browser
 sudo apt-get install -y chromium-browser
 
+# install java
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update -y
+echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+sudo apt-get -y install oracle-java8-installer maven
+
 # install Arduino IDE
 sudo apt-get install -y arduino arduino-core
 sudo adduser vagrant dialout
@@ -33,7 +40,11 @@ sudo apt-get install -y vim vim-gnome
 # install ARM GNU Toolchain
 sudo apt-get -y install build-essential gcc-arm-none-eabi gdb-arm-none-eabi
 
+# install moserial
+sudo apt-get -y install moserial
+
 # install openocd 0.9
+sudo apt-get -y install libhidapi-dev libusb-1.0-0-dev libusb-dev libtool autotools-dev automake
 git clone https://github.com/ntfreak/openocd.git;
 cd openocd
 ./bootstrap
@@ -45,11 +56,8 @@ sudo cp /usr/local/share/openocd/contrib/99-openocd.rules /etc/udev/rules.d/99-o
 sudo udevadm control --reload-rules
 sudo usermod -a -G plugdev vagrant
 
-# install java
-sudo add-apt-repository ppa:webupd8team/java
-sudo apt-get update -y
-echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-sudo apt-get -y install oracle-java8-installer
+# install guest addition
+# sudo apt-get -y install virtualbox-guest-dkms virtualbox-guest-x11 virtualbox-guest-utils
 
 # start desktop
 echo "autologin-user=vagrant" | sudo tee -a /etc/lightdm/lightdm.conf
