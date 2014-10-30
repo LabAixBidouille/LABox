@@ -2,13 +2,14 @@
 
 $script = <<SCRIPT
 sudo apt-get update -y
+sudo apt-get upgrade -y
 
 # switch to French keyboard layout
 sudo sed -i 's/"us"/"fr"/g' /etc/default/keyboard
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y console-common
 sudo install-keymap fr
 
-# set timezone to German timezone
+# set timezone to French timezone
 echo "Europe/Paris" | sudo tee /etc/timezone
 sudo dpkg-reconfigure -f noninteractive tzdata
 
@@ -28,6 +29,27 @@ sudo adduser vagrant dialout
 # install development: 
 sudo apt-get install -y git
 sudo apt-get install -y vim vim-gnome
+
+# install ARM GNU Toolchain
+sudo apt-get -y install build-essential gcc-arm-none-eabi gdb-arm-none-eabi
+
+# install openocd 0.9
+git clone https://github.com/ntfreak/openocd.git;
+cd openocd
+./bootstrap
+./configure --enable-stlink --enable-jlink --enable-ftdi  --enable-cmsis-dap
+make
+sudo make install
+cd
+sudo cp /usr/local/share/openocd/contrib/99-openocd.rules /etc/udev/rules.d/99-openocd.rules
+sudo udevadm control --reload-rules
+sudo usermod -a -G plugdev vagrant
+
+# install java
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update -y
+echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+sudo apt-get -y install oracle-java8-installer
 
 # start desktop
 echo "autologin-user=vagrant" | sudo tee -a /etc/lightdm/lightdm.conf
