@@ -61,8 +61,15 @@ class unity_desktop {
     require => File['lightdm.conf'],
     ensure  => running,
   }
+  
   class { 'keyboard':
     layout  => 'fr',
+  }
+  
+  dconf::set { "/org/gnome/desktop/input-sources/sources":
+          value => "[('xkb', 'fr'), ('xkb', 'fr+mac')]",
+		  user => "vagrant",
+		  group => "vagrant",
   }
 }
 
@@ -181,9 +188,6 @@ class gcc-arm-none-eabi {
 }
 
 class screensaver_settings {
-  package { "dconf-tools":
-    ensure  => present
-  }
   exec {
       'disable screensaver when idle':
           command   => "/bin/sh -c 'DISPLAY=:0 dconf write /org/gnome/desktop/screensaver/idle-activation-enabled false'",
@@ -258,6 +262,6 @@ include devtools
 include arduino
 include gcc-arm-none-eabi
 include openocd
-include virtualbox_x11
+#include virtualbox_x11
 include unity_desktop
 include screensaver_settings
