@@ -1,17 +1,5 @@
 # vi: set ft=ruby :
 
-$script = <<SCRIPT
-# install java
-#sudo add-apt-repository ppa:webupd8team/java
-#sudo apt-get update -y
-#echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-#sudo apt-get -y install oracle-java8-installer maven
-
-# install ARM GNU Toolchain
-#sudo apt-get -y install build-essential gcc-arm-none-eabi gdb-arm-none-eabi
-
-SCRIPT
-
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
@@ -41,10 +29,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       config.vm.provision :shell, :inline => "echo 'Acquire::http { Proxy \"http://#{guessed_address.ip_address}:3142\"; };' > /etc/apt/apt.conf.d/00proxy"
     end
   end
-  
-  #config.vm.provision "shell", privileged: false, inline: $script
-  #config.vm.provision :shell, :inline => "apt-get update"
-  #config.vm.provision :shell, :inline => "DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade --yes"
   
   # Provision the machine with puppet
   config.vm.provision :puppet do |puppet|

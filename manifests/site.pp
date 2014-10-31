@@ -1,18 +1,19 @@
 class base {
   # Ship our sources.list with all the pockets (especially multiverse)
   # enabled so that we can install virtualbox dkms packages.
-  file { 'apt sources.list':
-    path    => '/etc/apt/sources.list',
-    ensure  => present,
-    mode    => 0644,
-    owner   => root,
-    group   => root,
-    source  => "/vagrant/files/apt/sources-${operatingsystemrelease}.list",
-  }
+#  file { 'apt sources.list':
+#		path => '/etc/apt/sources.list',
+#		ensure => present,
+#		mode => 0644,
+#		owner => root,
+#		group => root,
+#		source => "/vagrant/files/apt/sources-${operatingsystemrelease}.list",
+#	}
+	
   exec { 'apt-get update':
     command => '/usr/bin/apt-get update',
     timeout => 600,
-    require => File['apt sources.list'],
+    require => File['sources.list'],
   }
   exec { 'apt-get dist-upgrade':
     require => Exec['apt-get update'],
@@ -195,6 +196,14 @@ class gcc-arm-none-eabi {
 		ensure => 'present',
 		require => Package['gcc-arm-none-eabi'],
 	}
+    exec {
+        'repair gdb-arm conflict':
+            command   => "/bin/sh -c 'dpkg -i --force-overwrite /var/cache/apt/archives/gdb-arm-none-eabi_7.6.50.20131218-0ubuntu1+1_amd64.deb'",
+			onlyif    => '/usr/bin/test -e /var/cache/apt/archives/gdb-arm-none-eabi_7.6.50.20131218-0ubuntu1+1_amd64.deb',
+            require   => [Package['gdb-arm-none-eabi']],
+            user      => 'root',
+         ;
+	 }
 }
 
 class screensaver_settings {
@@ -265,10 +274,47 @@ class screensaver_settings {
        ;
   }
 }
+include apt
+class java {
+	apt::ppa { 'ppa:webupd8team/java': 
+		before => Package["oracle-java8-installer"]
+	}
+	
+	exec { "auto_accept_license":
+		command => "echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections",
+		path => "/bin:/usr/bin",
+		before => Package["oracle-java8-installer"]
+	}
+	
+	package { "oracle-java8-installer":
+		ensure => "installed"
+	}
+	
+	package { "oracle-java8-set-default": 
+		ensure => "installed", 
+		require => Package["oracle-java8-installer"]
+	}
+	
+	# execute smoke tests after the installation
+	exec { "smoketest_java":
+		command => "java -version 2>&1 | grep 1.8",
+		path => "/bin:/usr/bin",
+		returns => 0,
+		require => Package["oracle-java8-installer"]
+	}
+	exec { "smoketest_javac":
+		command => "javac -version 2>&1 | grep 1.8",
+		path => "/bin:/usr/bin",
+		returns => 0,
+		require => Package["oracle-java8-installer"]
+	}
+	 
+}
 
 include base
 include grub
 include devtools
+include java
 include arduino
 include gcc-arm-none-eabi
 include openocd
