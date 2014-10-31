@@ -1,27 +1,15 @@
 # vi: set ft=ruby :
 
 $script = <<SCRIPT
-# switch to French keyboard layout
-sudo sed -i 's/"us"/"fr"/g' /etc/default/keyboard
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y console-common
-sudo install-keymap fr
-
-# set timezone to French timezone
-echo "Europe/Paris" | sudo tee /etc/timezone
-sudo dpkg-reconfigure -f noninteractive tzdata
-
 # install java
 #sudo add-apt-repository ppa:webupd8team/java
 #sudo apt-get update -y
 #echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
 #sudo apt-get -y install oracle-java8-installer maven
 
-
 # install ARM GNU Toolchain
 #sudo apt-get -y install build-essential gcc-arm-none-eabi gdb-arm-none-eabi
 
-# start desktop
-#DISPLAY=:0.0 gsettings set com.canonical.Unity.Launcher favorites "['nautilus-home.desktop', 'ubuntu-software-center.desktop', 'gnome-control-center.desktop', 'gnome-terminal.desktop', 'chromium-browser.desktop', 'arduino.desktop']"
 SCRIPT
 
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!

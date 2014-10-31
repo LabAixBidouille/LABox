@@ -1,0 +1,18 @@
+{
+  "Gemfile": "5a5cd3ce5e9fcc234124d5e4d6c90f8d",
+  "LICENSE": "2a944942e1496af1886903d274dedb13",
+  "README.md": "38e566fcb24007c9719312c935ef99d9",
+  "Rakefile": "f5c30a740a495fde127ac59b415ece74",
+  "manifests/init.pp": "1a1112fac61b1a81c65e4e31901891b3",
+  "manifests/params.pp": "cf841d6f42ed7bca4acca4fa943a6b02",
+  "metadata.json": "9b4e5218c8ec339fb18fdfb5d4e8702d",
+  "spec/classes/timezone_spec.rb": "45f493119940e8ab6924f03918591568",
+  "spec/spec_helper.rb": "889ca8d81ea31a688f2f5d906c36dd09",
+  "spec/support/debian.rb": "975b384cfe478daaa37706b4279d9f7d",
+  "spec/support/gentoo.rb": "130318adfdbfca53f6b5be296f6dcd7e",
+  "spec/support/redhat.rb": "b52f606be53d28801275248255ac34eb",
+  "spec/support/validate_params.rb": "70fd7489a47fbd0d331b9baed2256e9a",
+  "templates/clock.erb": "139ad25bcc9637c94cc15c043b76f929",
+  "templates/timezone.erb": "177a5234f8fdb29d5dbf997d002f2bc9",
+  "tests/init.pp": "6bafc4062b1bafbdf8e36e81b55ee1c5"
+}

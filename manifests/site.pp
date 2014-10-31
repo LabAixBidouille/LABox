@@ -62,6 +62,10 @@ class unity_desktop {
     ensure  => running,
   }
   
+  class { 'timezone':
+    timezone => 'Europe/Paris',
+  }
+  
   class { 'keyboard':
     layout  => 'fr',
   }
