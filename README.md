@@ -6,8 +6,10 @@ Vagrant Box permettant d'avoir un environement de développement uniforme et fac
 # Installation
 Pour construire l'image de votre machine virtuelle vous aurez besoin d'installer [Vagrant](http://vagrantup.com). Pour la lancer, nous utiliserons [VirtualBox](http://virtualbox.org). Pour la gestion des périphériques USB2, vous devez aussi installer [VirtualBox Extension Pack](https://www.virtualbox.org/wiki/Downloads). 
 
-## Preparing the Arduino IDE Ubuntu box
+## Preparing the LAB Ubuntu box
 Pour lancer LABox, il vous suffit de récupérer les fichiers de ce dépot et lancer Vagrant comme suit :
+```sh
     git clone https://github.com/LabAixBidouille/LABox.git
     cd LABox.git
     vagrant up
+```
