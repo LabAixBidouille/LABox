@@ -66,6 +66,12 @@ class unity_desktop {
     layout  => 'fr',
   }
   
+  dconf::set { "/com/canonical/unity/launcher/favorites": 
+  		value => "['nautilus-home.desktop', 'ubuntu-software-center.desktop', 'gnome-control-center.desktop', 'gnome-terminal.desktop', 'firefox.desktop', 'arduino.desktop']",
+	    user => "vagrant",
+	    group => "vagrant",
+  }
+  
   dconf::set { "/org/gnome/desktop/input-sources/sources":
           value => "[('xkb', 'fr'), ('xkb', 'fr+mac')]",
 		  user => "vagrant",
@@ -262,6 +268,6 @@ include devtools
 include arduino
 include gcc-arm-none-eabi
 include openocd
-#include virtualbox_x11
+include virtualbox_x11
 include unity_desktop
 include screensaver_settings
