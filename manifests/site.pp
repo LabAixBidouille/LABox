@@ -72,15 +72,18 @@ class unity_desktop {
   }
   
   dconf::set { "/com/canonical/unity/launcher/favorites": 
-  		value => "['nautilus-home.desktop', 'ubuntu-software-center.desktop', 'gnome-control-center.desktop', 'gnome-terminal.desktop', 'firefox.desktop', 'arduino.desktop']",
+  		value => "['nautilus-home.desktop', 'ubuntu-software-center.desktop', 'gnome-control-center.desktop', 'gnome-terminal.desktop', 'firefox.desktop', 'arduino.desktop', 'codelite.desktop']",
 	    user => "vagrant",
 	    group => "vagrant",
+		require => [Package['arduino', 'ubuntu-desktop'], Exec['install codelite']],
+		notify  => Service["lightdm"],
   }
   
   dconf::set { "/org/gnome/desktop/input-sources/sources":
           value => "[('xkb', 'fr'), ('xkb', 'fr+mac')]",
 		  user => "vagrant",
 		  group => "vagrant",
+		  notify  => Service["lightdm"],
   }
 }
 
@@ -108,10 +111,11 @@ class arduino {
 }
 
 class openocd {
-	git::repo{'openocd':
-	 path   => '/usr/src/openocd',
-	 source => 'https://github.com/ntfreak/openocd.git',
-	 update => true,
+	vcsrepo { "/usr/src/openocd":
+	  ensure   => present,
+	  provider => git,
+	  source   => "https://github.com/ntfreak/openocd.git",
+	  before   => Exec['compile openocd']
 	}
 	
 	package { 'libhidapi-dev':
@@ -158,7 +162,7 @@ class openocd {
              command   => "/bin/sh -c 'cd /usr/src/openocd && ./bootstrap && ./configure --enable-stlink --enable-jlink --enable-ftdi  --enable-cmsis-dap &&make'",
              user      => 'root',
 			 onlyif    => '/usr/bin/test -d /usr/src/openocd',
-			 require   => [Package['build-essential','libhidapi-dev', 'libusb-1.0-0-dev', 'libusb-dev', 'libtool', 'autotools-dev', 'automake'], Git::Repo['openocd']],
+			 require   => [Package['build-essential','libhidapi-dev', 'libusb-1.0-0-dev', 'libusb-dev', 'libtool', 'autotools-dev', 'automake']],
 	     ;
          'install openocd':
              command   => "/bin/sh -c 'cd /usr/src/openocd && make install'",
@@ -274,6 +278,7 @@ class screensaver_settings {
        ;
   }
 }
+
 include apt
 class java {
 	apt::ppa { 'ppa:webupd8team/java': 
@@ -294,30 +299,68 @@ class java {
 		ensure => "installed", 
 		require => Package["oracle-java8-installer"]
 	}
+}
+
+class codelite{
+	package { "libgtk2.0-dev":
+		ensure => "installed"
+	}
 	
-	# execute smoke tests after the installation
-	exec { "smoketest_java":
-		command => "java -version 2>&1 | grep 1.8",
-		path => "/bin:/usr/bin",
-		returns => 0,
-		require => Package["oracle-java8-installer"]
+	package { "pkg-config":
+		ensure => "installed"
 	}
-	exec { "smoketest_javac":
-		command => "javac -version 2>&1 | grep 1.8",
-		path => "/bin:/usr/bin",
-		returns => 0,
-		require => Package["oracle-java8-installer"]
+	
+	package { "cmake":
+		ensure => "installed"
 	}
-	 
+	
+	package { "libssh-dev":
+		ensure => "installed"
+	}
+	
+	package { "libwxgtk3.0-0":
+		ensure => "installed"
+	}
+	
+	package { "libwxgtk3.0-dev":
+		ensure => "installed"
+	}
+	
+	vcsrepo { "/usr/src/codelite":
+	  ensure   => present,
+	  provider => git,
+	  source   => "https://github.com/eranif/codelite.git",
+	  before   => Exec['compile codelite']
+	}
+	
+    exec {
+		 'prepare build directory':
+         	command   => "/bin/sh -c 'cd /usr/src/codelite && mkdir build-release'",
+         	user      => 'root',
+		 	onlyif    => '/usr/bin/test (-d /usr/src/codelite) -a !(-d /usr/src/codelite/build-release)',
+		 ;
+         'compile codelite':
+             command   => "/bin/sh -c 'cd /usr/src/codelite/build-release && cmake -G \"Unix Makefiles\" -DCMAKE_BUILD_TYPE=Release .. && make'",
+             user      => 'root',
+			 onlyif    => '/usr/bin/test -d /usr/src/codelite/build-release',
+			 require   => [Package['libgtk2.0-dev', 'pkg-config', 'build-essential', 'cmake', 'libssh-dev', 'libwxgtk3.0-dev', 'libwxgtk3.0-0']],
+	     ;
+         'install codelite':
+             command   => "/bin/sh -c 'cd /usr/src/codelite/build-release && make install'",
+             user      => 'root',
+			 require   => [Exec['compile codelite']],
+	     ;
+	}
 }
 
 include base
 include grub
 include devtools
 include java
-include arduino
 include gcc-arm-none-eabi
 include openocd
-include virtualbox_x11
+#include virtualbox_x11
 include unity_desktop
+include arduino
+include codelite
 include screensaver_settings
