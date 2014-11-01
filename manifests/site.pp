@@ -1,25 +1,28 @@
+
+
 class base {
-  # Ship our sources.list with all the pockets (especially multiverse)
-  # enabled so that we can install virtualbox dkms packages.
-#  file { 'apt sources.list':
-#		path => '/etc/apt/sources.list',
-#		ensure => present,
-#		mode => 0644,
-#		owner => root,
-#		group => root,
-#		source => "/vagrant/files/apt/sources-${operatingsystemrelease}.list",
-#	}
+	# Ship our sources.list with all the pockets (especially multiverse)
+	# enabled so that we can install virtualbox dkms packages.
+	file { 'apt sources.list':
+	path => "/etc/apt/sources.list.d/00default-${operatingsystemrelease}.list",
+	ensure => present,
+	mode => 0644,
+	owner => root,
+	group => root,
+	source => "/vagrant/files/apt/sources-${operatingsystemrelease}.list",
+	before => Exec['apt_update'],
+	}
 	
-  exec { 'apt-get update':
-    command => '/usr/bin/apt-get update',
-    timeout => 600,
-    require => File['sources.list'],
-  }
-  exec { 'apt-get dist-upgrade':
-    require => Exec['apt-get update'],
-    command => '/usr/bin/apt-get dist-upgrade --yes',
-    timeout => 3600,
-  }
+	class { 'apt':
+		always_apt_update    => true,
+		fancy_progress       => true
+	}
+	
+	exec { 'apt-get dist-upgrade':
+		require => Exec['apt_update'],
+		command => '/usr/bin/apt-get dist-upgrade --yes',
+		timeout => 3600,
+	}
 }
 
 class grub {
@@ -39,8 +42,8 @@ class grub {
 
 class virtualbox_x11 {
   package {
-      "virtualbox-guest-dkms": ensure => installed;
-      "virtualbox-guest-x11": ensure => installed;
+      "virtualbox-guest-dkms": ensure => installed, require => Exec['apt_update'];
+      "virtualbox-guest-x11": ensure => installed, require => Exec['apt_update'];
   }
 }
 
@@ -115,7 +118,8 @@ class openocd {
 	  ensure   => present,
 	  provider => git,
 	  source   => "https://github.com/ntfreak/openocd.git",
-	  before   => Exec['compile openocd']
+	  before   => Exec['compile openocd'],
+	  require  => Package['git'],
 	}
 	
 	package { 'libhidapi-dev':
@@ -182,6 +186,15 @@ class devtools {
 	package { 'build-essential':
 		ensure => 'present',
 	}
+	
+	package {'gdb':
+		ensure => 'present',
+	}
+	
+	package { 'git':
+		ensure => 'present',
+	}
+	
 	package { 'vim':
 		ensure => 'present',
 	}
@@ -190,7 +203,7 @@ class devtools {
 	}
 }
 
-class gcc-arm-none-eabi {
+class gcc-arm-none-eabi {	
 	package { 'gcc-arm-none-eabi':
 		ensure => 'present',
 		require => Package['build-essential'],
@@ -198,7 +211,7 @@ class gcc-arm-none-eabi {
 	
 	package { 'gdb-arm-none-eabi':
 		ensure => 'present',
-		require => Package['gcc-arm-none-eabi'],
+		require => Package['gcc-arm-none-eabi','gdb'],
 	}
     exec {
         'repair gdb-arm conflict':
@@ -279,7 +292,6 @@ class screensaver_settings {
   }
 }
 
-include apt
 class java {
 	apt::ppa { 'ppa:webupd8team/java': 
 		before => Package["oracle-java8-installer"]
@@ -330,24 +342,28 @@ class codelite{
 	  ensure   => present,
 	  provider => git,
 	  source   => "https://github.com/eranif/codelite.git",
-	  before   => Exec['compile codelite']
+	  before   => Exec['compile codelite', 'prepare codelite build directory'],
+	  require  => Package['git'],
 	}
 	
     exec {
-		 'prepare build directory':
+		 'prepare codelite build directory':
          	command   => "/bin/sh -c 'cd /usr/src/codelite && mkdir build-release'",
          	user      => 'root',
-		 	onlyif    => '/usr/bin/test (-d /usr/src/codelite) -a !(-d /usr/src/codelite/build-release)',
+		 	creates   => "/usr/src/codelite/build-release",
+			before    => Exec['compile codelite','install codelite'],
 		 ;
          'compile codelite':
-             command   => "/bin/sh -c 'cd /usr/src/codelite/build-release && cmake -G \"Unix Makefiles\" -DCMAKE_BUILD_TYPE=Release .. && make'",
+             command   => "/bin/sh -c 'cd /usr/src/codelite/build-release && cmake -G \"Unix Makefiles\" -DCMAKE_BUILD_TYPE=Release .. && make -j4'",
              user      => 'root',
 			 onlyif    => '/usr/bin/test -d /usr/src/codelite/build-release',
 			 require   => [Package['libgtk2.0-dev', 'pkg-config', 'build-essential', 'cmake', 'libssh-dev', 'libwxgtk3.0-dev', 'libwxgtk3.0-0']],
+			 timeout => 3600,
 	     ;
          'install codelite':
              command   => "/bin/sh -c 'cd /usr/src/codelite/build-release && make install'",
              user      => 'root',
+			 onlyif    => '/usr/bin/test -d /usr/src/codelite/build-release',
 			 require   => [Exec['compile codelite']],
 	     ;
 	}
@@ -359,7 +375,7 @@ include devtools
 include java
 include gcc-arm-none-eabi
 include openocd
-#include virtualbox_x11
+include virtualbox_x11
 include unity_desktop
 include arduino
 include codelite

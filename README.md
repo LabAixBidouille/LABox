@@ -9,7 +9,13 @@ Pour construire l'image de votre machine virtuelle vous aurez besoin d'installer
 ## Preparing the LAB Ubuntu box
 Pour lancer LABox, il vous suffit de récupérer les fichiers de ce dépot et lancer Vagrant comme suit :
 ```sh
-    git clone https://github.com/LabAixBidouille/LABox.git
-    cd LABox.git
-    vagrant up
+git clone https://github.com/LabAixBidouille/LABox.git
+cd LABox
+vagrant up
+```
+Attention cette étape va télécharger la moitié d'internet, donc prevoyez d'aller prendre l'air avant de la lancer.
+
+Si jamais vous rencontrez des problèmes lors du provisionning (timeout ou autre), vous pouvez reprendre avec la commande suivante :
+```sh
+vagrant reload --provision
 ```

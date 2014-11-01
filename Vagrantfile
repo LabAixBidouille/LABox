@@ -20,6 +20,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     #       vb.customize ["usbfilter", "add", "1", "--target", :id, "--vendorid", "0x0403", "--productid", "0x6015", "--name", "rfduino"]
   end
 
+  config.vbguest.auto_update = false
+
   # Automatically use local apt-cacher-ng if available
   if File.exists? "/etc/apt-cacher-ng"
     # If apt-cacher-ng is installed on this machine then just use it.
