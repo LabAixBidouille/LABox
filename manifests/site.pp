@@ -165,19 +165,77 @@ class openocd {
          'compile openocd':
              command   => "/bin/sh -c 'cd /usr/src/openocd && ./bootstrap && ./configure --enable-stlink --enable-jlink --enable-ftdi  --enable-cmsis-dap &&make'",
              user      => 'root',
-			 onlyif    => '/usr/bin/test -d /usr/src/openocd',
+			 subscribe => Vcsrepo["/usr/src/openocd"],
 			 require   => [Package['build-essential','libhidapi-dev', 'libusb-1.0-0-dev', 'libusb-dev', 'libtool', 'autotools-dev', 'automake']],
+			 refreshonly => true,
 	     ;
          'install openocd':
              command   => "/bin/sh -c 'cd /usr/src/openocd && make install'",
+			 creates   => "/usr/local/bin/openocd",
              user      => 'root',
 			 require   => [Exec['compile openocd']],
+			 refreshonly => true
 	     ;
          'install openocd rules reload':
              command   => "/bin/sh -c 'udevadm control --reload-rules'",
              user      => 'root',
-			 require   => [File['openocd.rules']],
-			 notify  => Service["lightdm"],
+			 refreshonly => true,
+			 require   => [Exec['install openocd']],
+			 subscribe => [Exec['install openocd'], File['openocd.rules']],
+			 notify    => Service["lightdm"],
+	     ;
+	}
+}
+
+class codelite{
+	package { "libgtk2.0-dev":
+		ensure => "installed"
+	}
+	
+	package { "pkg-config":
+		ensure => "installed"
+	}
+	
+	package { "cmake":
+		ensure => "installed"
+	}
+	
+	package { "libssh-dev":
+		ensure => "installed"
+	}
+	
+	package { "libwxgtk3.0-0":
+		ensure => "installed"
+	}
+	
+	package { "libwxgtk3.0-dev":
+		ensure => "installed"
+	}
+	
+	vcsrepo { "/usr/src/codelite":
+	  ensure   => present,
+	  provider => git,
+	  source   => "https://github.com/eranif/codelite.git",
+	  before   => Exec['compile codelite'],
+	  require  => Package['git'],
+	}
+	
+    exec { 
+		 'compile codelite':
+             command   => "/bin/sh -c 'cd /usr/src/codelite && rm -rf  build-release&&mkdir build-release && cd build-release && cmake -G \"Unix Makefiles\" -DCMAKE_BUILD_TYPE=Release .. && make -j4'",
+             user      => 'root',
+			 require   => [Package['libgtk2.0-dev', 'pkg-config', 'build-essential', 'cmake', 'libssh-dev', 'libwxgtk3.0-dev', 'libwxgtk3.0-0'], Vcsrepo[ "/usr/src/codelite"]],
+			 creates   => "/usr/src/codelite/build-release",
+			 timeout   => 3600,
+			 refreshonly => true,
+			 subscribe => Vcsrepo["/usr/src/openocd"],
+	     ;
+         'install codelite':
+             command   => "/bin/sh -c 'cd /usr/src/codelite/build-release && make install'",
+             user      => 'root',
+			 require   => [Exec['compile codelite']],
+			 refreshonly => true,
+			 subscribe => Vcsrepo["/usr/src/openocd"],
 	     ;
 	}
 }
@@ -228,6 +286,28 @@ class gcc-arm-none-eabi {
 		onlyif    => "/usr/bin/test -e ${apt_conf_d}/20ForceOverwrite",
 		require   => [Package['gdb-arm-none-eabi']],
 	}	
+}
+
+class java {
+	apt::ppa { 'ppa:webupd8team/java': 
+		before => Package["oracle-java8-installer"]
+	}
+	
+	exec { "auto_accept_license":
+		command => "echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections",
+		path => "/bin:/usr/bin",
+		before => Package["oracle-java8-installer"],
+		onlyif => 'debconf-get-selections | grep "shared/accepted-oracle-license-v1-1"| grep "select true"',
+	}
+	
+	package { "oracle-java8-installer":
+		ensure => "installed"
+	}
+	
+	package { "oracle-java8-set-default": 
+		ensure => "installed", 
+		require => Package["oracle-java8-installer"]
+	}
 }
 
 class screensaver_settings {
@@ -297,84 +377,6 @@ class screensaver_settings {
           try_sleep => 5,
        ;
   }
-}
-
-class java {
-	apt::ppa { 'ppa:webupd8team/java': 
-		before => Package["oracle-java8-installer"]
-	}
-	
-	exec { "auto_accept_license":
-		command => "echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections",
-		path => "/bin:/usr/bin",
-		before => Package["oracle-java8-installer"],
-		onlyif => 'debconf-get-selections | grep "shared/accepted-oracle-license-v1-1"| grep "select true"',
-	}
-	
-	package { "oracle-java8-installer":
-		ensure => "installed"
-	}
-	
-	package { "oracle-java8-set-default": 
-		ensure => "installed", 
-		require => Package["oracle-java8-installer"]
-	}
-}
-
-class codelite{
-	package { "libgtk2.0-dev":
-		ensure => "installed"
-	}
-	
-	package { "pkg-config":
-		ensure => "installed"
-	}
-	
-	package { "cmake":
-		ensure => "installed"
-	}
-	
-	package { "libssh-dev":
-		ensure => "installed"
-	}
-	
-	package { "libwxgtk3.0-0":
-		ensure => "installed"
-	}
-	
-	package { "libwxgtk3.0-dev":
-		ensure => "installed"
-	}
-	
-	vcsrepo { "/usr/src/codelite":
-	  ensure   => present,
-	  provider => git,
-	  source   => "https://github.com/eranif/codelite.git",
-	  before   => Exec['compile codelite', 'prepare codelite build directory'],
-	  require  => Package['git'],
-	}
-	
-    exec {
-		 'prepare codelite build directory':
-         	command   => "/bin/sh -c 'cd /usr/src/codelite && mkdir build-release'",
-         	user      => 'root',
-		 	creates   => "/usr/src/codelite/build-release",
-			before    => Exec['compile codelite','install codelite'],
-		 ;
-         'compile codelite':
-             command   => "/bin/sh -c 'cd /usr/src/codelite/build-release && cmake -G \"Unix Makefiles\" -DCMAKE_BUILD_TYPE=Release .. && make -j4'",
-             user      => 'root',
-			 onlyif    => '/usr/bin/test -d /usr/src/codelite/build-release',
-			 require   => [Package['libgtk2.0-dev', 'pkg-config', 'build-essential', 'cmake', 'libssh-dev', 'libwxgtk3.0-dev', 'libwxgtk3.0-0']],
-			 timeout => 3600,
-	     ;
-         'install codelite':
-             command   => "/bin/sh -c 'cd /usr/src/codelite/build-release && make install'",
-             user      => 'root',
-			 onlyif    => '/usr/bin/test -d /usr/src/codelite/build-release',
-			 require   => [Exec['compile codelite']],
-	     ;
-	}
 }
 
 include base
