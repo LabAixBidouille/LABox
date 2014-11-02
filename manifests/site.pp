@@ -15,7 +15,7 @@ class base {
 	
 	class { 'apt':
 		always_apt_update    => true,
-		fancy_progress       => true
+		
 	}
 	
 	exec { 'apt-get dist-upgrade':
@@ -208,19 +208,26 @@ class gcc-arm-none-eabi {
 		ensure => 'present',
 		require => Package['build-essential'],
 	}
-	
+    $apt_conf_d = $apt::params::apt_conf_d
+   	file { "${apt_conf_d}/20ForceOverwrite":
+   		ensure => 'present',
+   	 	content => 'Dpkg::Options {"--force-confdef"; "--force-confold"; "--force-overwrite";}',
+   	 	owner => root,
+   	 	group => root,
+   	 	mode => '0644',
+		before => Package['gdb-arm-none-eabi'],
+   	}
 	package { 'gdb-arm-none-eabi':
-		ensure => 'present',
-		require => Package['gcc-arm-none-eabi','gdb'],
+		ensure          => 'present',
+		require         => Package['gcc-arm-none-eabi','gdb'],
+		provider => 'apt',
 	}
-    exec {
-        'repair gdb-arm conflict':
-            command   => "/bin/sh -c 'dpkg -i --force-overwrite /var/cache/apt/archives/gdb-arm-none-eabi_7.6.50.20131218-0ubuntu1+1_amd64.deb'",
-			onlyif    => '/usr/bin/test -e /var/cache/apt/archives/gdb-arm-none-eabi_7.6.50.20131218-0ubuntu1+1_amd64.deb',
-            require   => [Package['gdb-arm-none-eabi']],
-            user      => 'root',
-         ;
-	 }
+    exec {'rm gbd workaround':
+        command   => "/bin/sh -c 'rm -f ${apt_conf_d}/20ForceOverwrite'",
+        user      => 'root',
+		onlyif    => "/usr/bin/test -e ${apt_conf_d}/20ForceOverwrite",
+		require   => [Package['gdb-arm-none-eabi']],
+	}	
 }
 
 class screensaver_settings {
@@ -300,7 +307,8 @@ class java {
 	exec { "auto_accept_license":
 		command => "echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections",
 		path => "/bin:/usr/bin",
-		before => Package["oracle-java8-installer"]
+		before => Package["oracle-java8-installer"],
+		onlyif => 'debconf-get-selections | grep "shared/accepted-oracle-license-v1-1"| grep "select true"',
 	}
 	
 	package { "oracle-java8-installer":
