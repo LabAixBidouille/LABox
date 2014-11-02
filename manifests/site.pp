@@ -14,14 +14,21 @@ class base {
 	}
 	
 	class { 'apt':
-		always_apt_update    => true,
-		
+		apt_update_frequency => 'daily',	
 	}
 	
 	exec { 'apt-get dist-upgrade':
-		require => Exec['apt_update'],
 		command => '/usr/bin/apt-get dist-upgrade --yes',
 		timeout => 3600,
+		refreshonly => true,
+		subscribe => Exec['apt_update'],
+	}
+	
+	exec { 'apt-get upgrade':
+		command => '/usr/bin/apt-get upgrade --yes',
+		timeout => 3600,
+		refreshonly => true,
+		subscribe => Exec['apt_update'],
 	}
 }
 
