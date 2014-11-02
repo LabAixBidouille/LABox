@@ -167,7 +167,7 @@ class openocd {
       owner   => root,
       group   => root,
       source  => "/usr/local/share/openocd/contrib/99-openocd.rules",
-	  require   => [Exec['install openocd']],
+	  require   => [Exec['compile openocd', 'install openocd']],
     }
 
     exec {
@@ -180,10 +180,8 @@ class openocd {
 	     ;
          'install openocd':
              command   => "/bin/sh -c 'cd /usr/src/openocd && make install'",
-			 creates   => "/usr/local/bin/openocd",
              user      => 'root',
 			 require   => [Exec['compile openocd']],
-			 refreshonly => true
 	     ;
          'install openocd rules reload':
              command   => "/bin/sh -c 'udevadm control --reload-rules'",
