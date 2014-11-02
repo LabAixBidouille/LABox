@@ -311,72 +311,62 @@ class java {
 }
 
 class screensaver_settings {
-  exec {
-      'disable screensaver when idle':
-          command   => "/bin/sh -c 'DISPLAY=:0 dconf write /org/gnome/desktop/screensaver/idle-activation-enabled false'",
-          unless    => "/bin/sh -c 'test $(DISPLAY=:0 dconf read /org/gnome/desktop/screensaver/idle-activation-enabled) = false'",
-          require   => [Package['dconf-tools', 'ubuntu-desktop'], Service['lightdm']],
-          user      => 'vagrant',
-          tries     => 3,
-          try_sleep => 5,
-       ;
-      'disable screensaver lock':
-          command   => "/bin/sh -c 'DISPLAY=:0 dconf write /org/gnome/desktop/screensaver/lock-enabled false'",
-          unless    => "/bin/sh -c 'test $(DISPLAY=:0 dconf read /org/gnome/desktop/screensaver/lock-enabled) = false'",
-          require   => [Package['dconf-tools', 'ubuntu-desktop'], Service['lightdm']],
-          user      => 'vagrant',
-          tries     => 3,
-          try_sleep => 5,
-       ;
-      'disable screensaver lock after suspend':
-          command   => "/bin/sh -c 'DISPLAY=:0 dconf write /org/gnome/desktop/screensaver/ubuntu-lock-on-suspend false'",
-          unless    => "/bin/sh -c 'test $(DISPLAY=:0 dconf read /org/gnome/desktop/screensaver/ubuntu-lock-on-suspend) = false'",
-          require   => [Package['dconf-tools', 'ubuntu-desktop'], Service['lightdm']],
-          user      => 'vagrant',
-          tries     => 3,
-          try_sleep => 5,
-       ;
-       'set idle delay to zero':
-          command   => "/bin/sh -c 'DISPLAY=:0 dconf write /org/gnome/session/idle-delay 0'",
-          unless    => "/bin/sh -c 'test $(DISPLAY=:0 dconf read /org/gnome/session/idle-delay) = 0'",
-          require   => [Package['dconf-tools', 'ubuntu-desktop'], Service['lightdm']],
-          user      => 'vagrant',
-          tries     => 3,
-          try_sleep => 5,
-       ;
-       'set idle delay to zero (2)':
-          command   => "/bin/sh -c 'DISPLAY=:0 dconf write /org/gnome/desktop/session/idle-delay 0'",
-          unless    => "/bin/sh -c 'test $(DISPLAY=:0 dconf read /org/gnome/desktop/session/idle-delay) = 0'",
-          require   => [Package['dconf-tools', 'ubuntu-desktop'], Service['lightdm']],
-          user      => 'vagrant',
-          tries     => 3,
-          try_sleep => 5,
-       ;
-       'disable monitor sleep on AC':
-          command   => "/bin/sh -c 'DISPLAY=:0 dconf write /org/gnome/settings-daemon/plugins/power/sleep-display-ac 0'",
-          unless    => "/bin/sh -c 'test $(DISPLAY=:0 dconf read /org/gnome/settings-daemon/plugins/power/sleep-display-ac) = 0'",
-          require   => [Package['dconf-tools', 'ubuntu-desktop'], Service['lightdm']],
-          user      => 'vagrant',
-          tries     => 3,
-          try_sleep => 5,
-       ;
-       'disable monitor sleep on battery':
-          command   => "/bin/sh -c 'DISPLAY=:0 dconf write /org/gnome/settings-daemon/plugins/power/sleep-display-battery 0'",
-          unless    => "/bin/sh -c 'test $(DISPLAY=:0 dconf read /org/gnome/settings-daemon/plugins/power/sleep-display-battery) = 0'",
-          require   => [Package['dconf-tools', 'ubuntu-desktop'], Service['lightdm']],
-          user      => 'vagrant',
-          tries     => 3,
-          try_sleep => 5,
-       ;
-       'disable remind-reload query':
-          command   => "/bin/sh -c 'DISPLAY=:0 dconf write /apps/update-manager/remind-reload false'",
-          unless    => "/bin/sh -c 'test $(DISPLAY=:0 dconf read /apps/update-manager/remind-reload) = false'",
-          require   => [Package['dconf-tools', 'ubuntu-desktop'], Service['lightdm']],
-          user      => 'vagrant',
-          tries     => 3,
-          try_sleep => 5,
-       ;
-  }
+	# disable screensaver when idle
+    dconf::set { "/org/gnome/desktop/screensaver/idle-activation-enabled":
+          value => "false",
+  		  user => "vagrant",
+  		  group => "vagrant",
+  		  notify  => Service["lightdm"],
+    }
+	#disable screensaver lock
+    dconf::set { "/org/gnome/desktop/screensaver/lock-enabled":
+          value => "false",
+  		  user => "vagrant",
+  		  group => "vagrant",
+  		  notify  => Service["lightdm"],
+    }
+	# disable screensaver lock after suspend
+    dconf::set { "/org/gnome/desktop/screensaver/ubuntu-lock-on-suspend":
+          value => "false",
+  		  user => "vagrant",
+  		  group => "vagrant",
+  		  notify  => Service["lightdm"],
+    }
+	#set idle delay to zero
+    dconf::set { "/org/gnome/session/idle-delay":
+          value => "0",
+  		  user => "vagrant",
+  		  group => "vagrant",
+  		  notify  => Service["lightdm"],
+    }
+	#set idle delay to zero (2)
+    dconf::set { "/org/gnome/desktop/session/idle-delay":
+          value => "0",
+  		  user => "vagrant",
+  		  group => "vagrant",
+  		  notify  => Service["lightdm"],
+    }
+	#disable monitor sleep on AC
+    dconf::set { "/org/gnome/settings-daemon/plugins/power/sleep-display-ac":
+          value => "0",
+  		  user => "vagrant",
+  		  group => "vagrant",
+  		  notify  => Service["lightdm"],
+    }
+	#disable monitor sleep on battery
+    dconf::set { "/org/gnome/settings-daemon/plugins/power/sleep-display-battery":
+          value => "0",
+  		  user => "vagrant",
+  		  group => "vagrant",
+  		  notify  => Service["lightdm"],
+    }
+	#disable remind-reload query
+    dconf::set { "/apps/update-manager/remind-reload":
+          value => "false",
+  		  user => "vagrant",
+  		  group => "vagrant",
+  		  notify  => Service["lightdm"],
+    }
 }
 
 include base
