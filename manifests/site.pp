@@ -44,6 +44,8 @@ class grub {
   exec { 'update-grub':
     require => File['grub configuration'],
     command => '/usr/sbin/update-grub',
+	refreshonly => true,
+	subscribe => File['grub configuration'],
   }
 }
 
@@ -99,13 +101,13 @@ class unity_desktop {
 
 class arduino {
 	user { 'vagrant':
-		name                 => 'vagrant',
-		ensure               => 'present',
-		allowdupe            => false,
-		comment              => 'Embedded Developer',
-		expiry               => 'absent',
-		groups               => 'dialout',
-		managehome           => true,
+		name       => 'vagrant',
+		ensure     => 'present',
+		allowdupe  => false,
+		comment    => 'Embedded Developer',
+		expiry     => 'absent',
+		groups     => 'dialout',
+		managehome => true,
 	}
 
 	package { 'arduino-core':
@@ -303,12 +305,13 @@ class java {
 	exec { "auto_accept_license":
 		command => "echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections",
 		path => "/bin:/usr/bin",
-		before => Package["oracle-java8-installer"],
-		onlyif => 'debconf-get-selections | grep "shared/accepted-oracle-license-v1-1"| grep "select true"',
+	 	refreshonly => true,
+	 	subscribe => Apt::Ppa["ppa:webupd8team/java"],
 	}
 	
 	package { "oracle-java8-installer":
-		ensure => "installed"
+		ensure => "installed",
+		require => Exec["auto_accept_license"],
 	}
 	
 	package { "oracle-java8-set-default": 
