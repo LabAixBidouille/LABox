@@ -227,7 +227,7 @@ class codelite{
 	
     exec { 
 		 'compile codelite':
-             command   => "/bin/sh -c 'cd /usr/src/codelite && rm -rf  build-release&&mkdir build-release && cd build-release && cmake -G \"Unix Makefiles\" -DCMAKE_BUILD_TYPE=Release .. && make -j4'",
+             command   => "/bin/sh -c 'cd /usr/src/codelite && rm -rf  build-release&&mkdir build-release && cd build-release && cmake -G \"Unix Makefiles\" -DCMAKE_BUILD_TYPE=Release .. && make'",
              user      => 'root',
 			 require   => [Package['libgtk2.0-dev', 'pkg-config', 'build-essential', 'cmake', 'libssh-dev', 'libwxgtk3.0-dev', 'libwxgtk3.0-0'], Vcsrepo[ "/usr/src/codelite"]],
 			 creates   => "/usr/src/codelite/build-release",
