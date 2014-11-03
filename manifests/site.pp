@@ -1,5 +1,3 @@
-
-
 class base {
 	# Ship our sources.list with all the pockets (especially multiverse)
 	# enabled so that we can install virtualbox dkms packages.
@@ -175,7 +173,7 @@ class openocd {
              command   => "/bin/sh -c 'cd /usr/src/openocd && ./bootstrap && ./configure --enable-stlink --enable-jlink --enable-ftdi  --enable-cmsis-dap &&make'",
              user      => 'root',
 			 subscribe => Vcsrepo["/usr/src/openocd"],
-			 require   => [Package['build-essential','libhidapi-dev', 'libusb-1.0-0-dev', 'libusb-dev', 'libtool', 'autotools-dev', 'automake']],
+			 require   => [Package['build-essential','libhidapi-dev', 'libusb-1.0-0-dev', 'libusb-dev', 'libtool', 'autotools-dev', 'automake'], Vcsrepo["/usr/src/openocd"]],
 			 refreshonly => true,
 	     ;
          'install openocd':
