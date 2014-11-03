@@ -1,0 +1,6 @@
+[submodule "modules/dconf"]
+	path = modules/dconf
+	url = https://github.com/sitaktif/puppet-dconf.git
+[submodule "modules/keyboard"]
+	path = modules/keyboard
+	url = https://github.com/nervo/puppet_keyboard.git
