@@ -1,7 +1,7 @@
 LABox
 =====
 
-Vagrant Box permettant d'avoir un environement de développement uniforme et facile à déployer pour la team embarqué.
+This project is a Vagrant Box allowing an uniform and easy to deploy development environment et facile à déployer for the Embedded Team.
 
 # Installation
 Pour construire l'image de votre machine virtuelle vous aurez besoin d'installer [Vagrant](http://vagrantup.com). Pour la lancer, nous utiliserons [VirtualBox](http://virtualbox.org). Pour la gestion des périphériques USB2, vous devez aussi installer [VirtualBox Extension Pack](https://www.virtualbox.org/wiki/Downloads). 
@@ -11,8 +11,6 @@ Pour lancer LABox, il vous suffit de récupérer les fichiers de ce dépot et la
 ```sh
 git clone https://github.com/LabAixBidouille/LABox.git
 cd LABox
-git submodule init
-git submodule update
 vagrant up
 ```
 Attention cette étape va télécharger la moitié d'internet, donc prevoyez d'aller prendre l'air avant de la lancer.

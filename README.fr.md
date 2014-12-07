@@ -11,8 +11,6 @@ Pour lancer LABox, il vous suffit de récupérer les fichiers de ce dépot et la
 ```sh
 git clone https://github.com/LabAixBidouille/LABox.git
 cd LABox
-git submodule init
-git submodule update
 vagrant up
 ```
 Attention cette étape va télécharger la moitié d'internet, donc prevoyez d'aller prendre l'air avant de la lancer.
