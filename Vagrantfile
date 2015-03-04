@@ -4,19 +4,20 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box = "ubuntu/trusty64"
-  config.vm.hostname = "trusty64-LABox"
+  config.vm.box = "utopic-server-cloudimg-amd64-vagrant-disk1.ubuntu.com"
+  config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/utopic/current/utopic-server-cloudimg-amd64-vagrant-disk1.box"
+  config.vm.hostname = "ubuntu-14.10-server-amd64-LABox"
   
   config.vm.provider :virtualbox do |vb|
     vb.gui = true
     # Use VBoxManage to customize the VM. For example to change memory:
-    vb.customize ["modifyvm", :id, "--memory", "1024", "--cpus", "1"]
+    vb.customize ["modifyvm", :id, "--memory", "4096", "--cpus", "4"]
     vb.customize ["modifyvm", :id, "--vram", 64]
     vb.customize ["modifyvm", :id, "--accelerate3d", "on"]
     vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
     vb.customize ["modifyvm", :id, "--usb", "on"]
     vb.customize ["modifyvm", :id, "--usbehci", "on"]
-    #       vb.customize ["usbfilter", "add", "1", "--target", :id, "--vendorid", "0x1781", "--productid", "0x0C9F", "--name", "adafruittrinket"]
+    vb.customize ["usbfilter", "add", "1", "--target", :id, "--vendorid", "0x1366", "--productid", "0x0105", "--name", "J-Link"]
     #       vb.customize ["usbfilter", "add", "1", "--target", :id, "--vendorid", "0x0403", "--productid", "0x6015", "--name", "rfduino"]
   end
 
@@ -34,7 +35,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   
   # Provision the machine with puppet
   config.vm.provision :puppet do |puppet|
-    puppet.manifests_path = 'manifests'
+    puppet.manifests_path = "manifests"
     puppet.manifest_file = "site.pp"
     puppet.module_path = "modules"
   end
