@@ -1,0 +1,11 @@
+deb http://archive.canonical.com/ubuntu utopic partner
+deb http://archive.ubuntu.com/ubuntu utopic-backports main restricted universe multiverse
+deb http://archive.ubuntu.com/ubuntu utopic main
+deb http://archive.ubuntu.com/ubuntu utopic multiverse
+deb http://archive.ubuntu.com/ubuntu utopic universe
+deb http://archive.ubuntu.com/ubuntu utopic-updates main
+deb http://archive.ubuntu.com/ubuntu utopic-updates multiverse
+deb http://archive.ubuntu.com/ubuntu utopic-updates universe
+deb http://security.ubuntu.com/ubuntu utopic-security main
+deb http://security.ubuntu.com/ubuntu utopic-security multiverse
+deb http://security.ubuntu.com/ubuntu utopic-security universe
